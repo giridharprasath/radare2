@@ -5,15 +5,14 @@ if get_option('enable_libfuzzer')
     'bin2',
     'fs',
     'dwarf',
-    'dalvik_ns',
     'bin_demangle',
     'ia',
     'cmd',
     'pdb_parse',
-    'pkcs7_parse',
     'protobuf_decode',
     'punycode_decode',
     'run_parseline',
+    'pkcs7_parse',
     'x509_parse',
   ]
 
