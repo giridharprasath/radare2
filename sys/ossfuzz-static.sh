@@ -4,29 +4,22 @@
 # with fuzz targets. (It replaces our older sys/static.sh.)
 # It has been updated for the new Ubuntu base image where the ASan runtime
 # requires different compiler/linker flags.
-export NOLTO=1
-# Use the OSS-Fuzz provided compilers.
-export CC="${CC:-clang}"
-export CXX="${CXX:-clang++}"
 
 # Patch to use llvm-ar if available.
 if command -v llvm-ar >/dev/null 2>&1; then
     export AR=llvm-ar
 fi
 
-# Set the sanitizer flags.
-# NOTE: We remove -fsanitize-address-use-after-scope and -fsanitize=fuzzer-no-link
-# because with the new Ubuntu base, they cause DWARF and linking issues.
-export CFLAGS="${CFLAGS} -O1 -fno-omit-frame-pointer -gline-tables-only -DFUZZING_BUILD_MODE_UNSAFE_FOR_PRODUCTION -fsanitize=address -fPIC -gdwarf-4"
-export CXXFLAGS="${CXXFLAGS} -O1 -fno-omit-frame-pointer -gline-tables-only -DFUZZING_BUILD_MODE_UNSAFE_FOR_PRODUCTION -fsanitize=address -stdlib=libc++ -fPIC -gdwarf-4"
-
 # For static linking, we DO NOT want to force complete static linking of the sanitizer runtime.
 # (The final fuzz target will link dynamically to the sanitizer runtime via $LIB_FUZZING_ENGINE.)
 # So we do NOT add "-static" here.
 # Instead, ensure that LDFLAGS includes the sanitizer flag so that libasan is linked.
-export LDFLAGS="${LDFLAGS:-} -fsanitize=address -Wl,--allow-multiple-definition"
+ # Original ASan link flags (no -static here)
+export LDFLAGS="${LDFLAGS:-} ${SANITIZER_FLAGS_address} ${LIB_FUZZING_ENGINE} -Wl,--allow-multiple-definition"
+export LDFLAGS="${LDFLAGS} ${COVERAGE_FLAGS:-}"
 
-# Set additional LTO flags if desired (optional)
+#export LDFLAGS="${LDFLAGS:-} -fsanitize=address -Wl,--allow-multiple-definition"
+
 [ "$NOLTO" != 1 ] && { export CFLAGS="${CFLAGS} -flto"; export LDFLAGS="${LDFLAGS} -flto"; }
 
 # Determine the installation prefix for the static build.
@@ -84,4 +77,3 @@ mkdir r2-static || exit 1
 
 # Install into r2-static.
 ${MAKE:-make} install DESTDIR="${PWD}/r2-static" || exit 1
-
