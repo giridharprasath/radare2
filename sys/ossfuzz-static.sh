@@ -15,7 +15,8 @@ fi
 # So we do NOT add "-static" here.
 # Instead, ensure that LDFLAGS includes the sanitizer flag so that libasan is linked.
  # Original ASan link flags (no -static here)
-export LDFLAGS="${LDFLAGS:-} ${SANITIZER_FLAGS_address} ${LIB_FUZZING_ENGINE} -Wl,--allow-multiple-definitions"
+#export LDFLAGS="${LDFLAGS:-} ${SANITIZER_FLAGS_address} ${LIB_FUZZING_ENGINE} -Wl,--allow-multiple-definitions"
+export LDFLAGS="${LDFLAGS:-} ${SANITIZER_FLAGS_address} ${LIB_FUZZING_ENGINE}"
 #export LDFLAGS="${LDFLAGS} ${COVERAGE_FLAGS:-}"
 
 #export LDFLAGS="${LDFLAGS:-} -fsanitize=address -Wl,--allow-multiple-definition"
